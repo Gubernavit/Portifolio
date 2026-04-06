@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thalisson Rodrigues Rocha — Currículo</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0f0b08;
+  --surface:  #181210;
+  --surface2: #221a14;
+  --border:   #2e2018;
+  --accent:   #f97316;
+  --accent2:  #fb923c;
+  --gold:     #fbbf24;
+  --text:     #f0e8e0;
+  --muted:    #8a7060;
+  --glow:     rgba(249,115,22,0.15);
+}
+
+.cursor {
+  width: 12px; height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.1s ease;
+  mix-blend-mode: screen;
+}
+.cursor-ring {
+  width: 36px; height: 36px;
+  border: 1.5px solid rgba(249,115,22,0.5);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9998;
+  transition: width 0.2s ease, height 0.2s ease, border-color 0.2s;
+}
+.cursor-ring.hovered { width: 56px; height: 56px; border-color: var(--accent); }
+
+#particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.35; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  cursor: none;
+  overflow-x: hidden;
+}
+
+/* HERO */
+.hero {
+  position: relative;
+  padding: 72px 56px 56px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  z-index: 1;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 80% 20%, rgba(249,115,22,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 10% 80%, rgba(251,191,36,0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--accent);
+  letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 16px;
+  opacity: 0; animation: fadeUp 0.6s ease forwards 0.05s;
+}
+.eyebrow::before { content: '> '; opacity: 0.5; }
+
+h1 {
+  font-size: clamp(42px, 7vw, 76px);
+  font-weight: 900; line-height: 1; letter-spacing: -2px;
+  opacity: 0; animation: fadeUp 0.7s ease forwards 0.15s;
+}
+h1 .last { color: var(--accent); }
+
+.dob {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--muted);
+  margin-top: 10px;
+  opacity: 0; animation: fadeUp 0.6s ease forwards 0.25s;
+}
+
+.tagline {
+  font-size: 16px; color: var(--muted);
+  margin-top: 16px; max-width: 560px; line-height: 1.65;
+  opacity: 0; animation: fadeUp 0.7s ease forwards 0.3s;
+}
+.tagline .hi { color: var(--accent2); font-weight: 600; }
+
+.code-quip {
+  display: inline-block; margin-top: 20px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: var(--gold);
+  background: rgba(251,191,36,0.06);
+  border: 1px solid rgba(251,191,36,0.15);
+  border-radius: 6px; padding: 7px 14px;
+  opacity: 0; animation: fadeUp 0.6s ease forwards 0.4s;
+}
+
+.contacts {
+  display: flex; flex-wrap: wrap; gap: 9px;
+  margin-top: 28px;
+  opacity: 0; animation: fadeUp 0.7s ease forwards 0.5s;
+}
+.contact-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); text-decoration: none;
+  padding: 7px 14px; border-radius: 7px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+  transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.15s;
+}
+.contact-chip:hover {
+  border-color: var(--accent); color: var(--accent);
+  background: rgba(249,115,22,0.06); transform: translateY(-2px);
+}
+
+/* LAYOUT */
+.wrap {
+  max-width: 900px; margin: 0 auto;
+  padding: 52px 56px 96px;
+  display: grid; grid-template-columns: 1fr 300px; gap: 48px;
+  position: relative; z-index: 1;
+}
+
+.sec-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+section { margin-bottom: 44px; }
+
+.objective {
+  border-left: 3px solid var(--accent);
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(249,115,22,0.03) 100%);
+  border-radius: 0 10px 10px 0;
+  padding: 20px 22px;
+  font-size: 14.5px; color: #c0a898; line-height: 1.75;
+}
+.objective strong { color: var(--text); }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px 22px; margin-bottom: 14px;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  position: relative; overflow: hidden;
+}
+.card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at var(--mx,50%) var(--my,50%), rgba(249,115,22,0.07) 0%, transparent 60%);
+  opacity: 0; transition: opacity 0.3s; pointer-events: none;
+}
+.card:hover { border-color: rgba(249,115,22,0.35); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(249,115,22,0.08); }
+.card:hover::before { opacity: 1; }
+
+.card-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.card-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent2); letter-spacing: 1px; margin-bottom: 10px; }
+.card-desc { font-size: 13.5px; color: #9a8070; line-height: 1.65; }
+.card-links { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; }
+.card-link {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--accent); text-decoration: none;
+  border-bottom: 1px dashed rgba(249,115,22,0.4);
+  transition: border-color 0.2s;
+}
+.card-link:hover { border-color: var(--accent); }
+
+/* TECH GRID */
+.tech-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+.tech-item {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 10px 6px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted);
+  transition: border-color 0.2s, transform 0.15s, color 0.2s; text-align: center;
+}
+.tech-item:hover { border-color: var(--accent); color: var(--accent2); transform: translateY(-2px); }
+.tech-item img { width: 26px; height: 26px; object-fit: contain; }
+
+/* SIDEBAR */
+.sidebar section { margin-bottom: 32px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 5px; padding: 5px 11px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted);
+  transition: border-color 0.2s, color 0.2s, transform 0.15s;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+.chip.hi { border-color: rgba(249,115,22,0.35); color: var(--accent2); background: rgba(249,115,22,0.05); }
+.chip.gold { border-color: rgba(251,191,36,0.3); color: var(--gold); background: rgba(251,191,36,0.04); }
+
+.cert-item { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.cert-item:last-child { border-bottom: none; }
+.cert-name { font-size: 13px; color: var(--text); font-weight: 600; }
+.cert-inst { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+
+.socials { display: flex; gap: 9px; flex-wrap: wrap; }
+.social-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 12px; border-radius: 7px;
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--muted); text-decoration: none;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  transition: border-color 0.2s, color 0.2s, transform 0.15s;
+}
+.social-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+.social-btn img { width: 15px; height: 15px; object-fit: contain; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+
+@media (max-width: 720px) {
+  .hero { padding: 44px 24px 40px; }
+  .wrap { grid-template-columns: 1fr; padding: 32px 24px 64px; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cur"></div>
+<div class="cursor-ring" id="curRing"></div>
+<canvas id="particles"></canvas>
+
+<header class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <p class="eyebrow">curriculo.json — v2025</p>
+    <h1><span class="first">Thalisson </span><span class="last">Rodrigues Rocha</span></h1>
+    <p class="dob">// nascimento: 12/04/2008</p>
+    <p class="tagline">
+      Desenvolvedor <span class="hi">generalista</span> — do firmware à interface, do jogo ao dashboard IoT.
+      Entusiasta de hardware, sistemas embarcados e game dev. Uberlândia, MG.
+    </p>
+    <code class="code-quip">if(funcionando){ NaoMecher(); }</code>
+    <div class="contacts">
+      <a class="contact-chip" href="tel:+5534991721129">📞 (34) 99172-1129</a>
+      <a class="contact-chip" href="mailto:thalissonrodriguesrocha08@gmail.com">✉️ thalissonrodriguesrocha08@gmail.com</a>
+      <a class="contact-chip" href="https://linkedin.com/in/thalissonrodriguesrocha" target="_blank">💼 LinkedIn</a>
+      <a class="contact-chip" href="https://github.com/gubernavit" target="_blank">🐙 GitHub</a>
+      <a class="contact-chip" href="https://www.instagram.com/thalisson_rr" target="_blank">📸 Instagram</a>
+      <a class="contact-chip" href="https://www.tiktok.com/@thalisson_rr" target="_blank">🎵 TikTok</a>
+      <a class="contact-chip" href="https://discord.com/users/1300515255226466545" target="_blank">🎮 Discord</a>
+      <span class="contact-chip">📍 Uberlândia, MG</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="left">
+
+    <section class="reveal">
+      <p class="sec-label">Objetivo Profissional</p>
+      <div class="objective">
+        Busco oportunidades na área de <strong>tecnologia</strong> — desenvolvimento de jogos, aplicações web, automações e sistemas embarcados (ESP32, Arduino, Raspberry Pi). Meu diferencial é a <strong>versatilidade técnica</strong>: acredito em dominar o que importa para cada desafio, transitando com facilidade entre hardware e software, do firmware à interface.
+      </div>
+    </section>
+
+    <section class="reveal">
+      <p class="sec-label">Formação Acadêmica</p>
+      <div class="card">
+        <p class="card-title">Engenharia da Computação</p>
+        <p class="card-sub">ANHANGUERA / PITÁGORAS · Cursando</p>
+        <p class="card-desc">Curso superior com foco em computação, programação, arquitetura de hardware e sistemas digitais.</p>
+      </div>
+      <div class="card">
+        <p class="card-title">Técnico em Desenvolvimento de Jogos Digitais</p>
+        <p class="card-sub">SENAI · Concluído</p>
+        <p class="card-desc">Formação técnica com ênfase em lógica de programação, engines de jogos e desenvolvimento de software interativo.</p>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <p class="sec-label">Projetos / Portfólio</p>
+
+      <div class="card">
+        <p class="card-title">GUBER-LAB — Sistema de Controle IoT</p>
+        <p class="card-sub">ESP32 · C++ · JavaScript · HTML5 · CSS · MQTT · Firebase</p>
+        <p class="card-desc">Dashboard web com autenticação e múltiplos níveis de acesso (admin, operador, visualizador) para controle em tempo real de 8 canais de relé via ESP32. Comunicação por MQTT com HiveMQ WebSocket SSL e backend Firebase Realtime Database. Inclui automações agendadas, histórico de ações e relatórios por e-mail — solução end-to-end do firmware ao front-end.</p>
+        <div class="card-links">
+          <a class="card-link" href="https://guberlab-sistemadecontrole.web.app/" target="_blank">→ Demo ao vivo</a>
+          <a class="card-link" href="https://github.com/gubernavit" target="_blank">→ GitHub</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Cosmic Journey — Jogo Indie</p>
+        <p class="card-sub">Game Dev · Unity / Godot · Alpha publicada</p>
+        <p class="card-desc">Jogo autoral em desenvolvimento ativo com versão alpha disponível ao público. Demonstra habilidades em design de gameplay, programação, arte e publicação independente.</p>
+        <div class="card-links">
+          <a class="card-link" href="https://cosmicjourney.web.app/" target="_blank">→ Site do jogo</a>
+          <a class="card-link" href="https://gubernavit.itch.io/cosmic-journey" target="_blank">→ itch.io</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Sistema RF Caseiro (Hardware)</p>
+        <p class="card-sub">Eletrônica · Peças de sucata · 2020 · 13 anos de idade</p>
+        <p class="card-desc">Construído durante a pandemia com peças recicladas de impressora e brinquedos. Transmitia sinais para acionar dispositivos à distância (luz, trava de porta) — funcional do zero, sem kit pronto.</p>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <p class="sec-label">Tecnologias</p>
+      <div class="tech-grid">
+        <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg">C++</div>
+        <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg">C#</div>
+        <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg">JavaScript</div>
+        <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg">Python</div>
+        <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg">Lua</div>
+        <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg">HTML5</div>
+        <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg">CSS3</div>
+        <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/unity/unity-original.svg">Unity</div>
+        <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/godot/godot-original.svg">Godot</div>
+        <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/blender/blender-original.svg">Blender</div>
+        <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg">Git</div>
+        <div class="tech-item"><img src="https://cdn.simpleicons.org/firebase/FFCA28">Firebase</div>
+        <div class="tech-item"><img src="https://cdn.simpleicons.org/espressif/E7352C">ESP32</div>
+        <div class="tech-item"><img src="https://cdn.simpleicons.org/mqtt/660066">MQTT</div>
+        <div class="tech-item"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/inkscape/inkscape-original.svg">Inkscape</div>
+        <div class="tech-item"><img src="https://cdn.simpleicons.org/krita/317BBF">Krita</div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="sidebar">
+
+    <section class="reveal">
+      <p class="sec-label">Habilidades Técnicas</p>
+      <div class="chips">
+        <span class="chip hi">Sistemas Embarcados</span>
+        <span class="chip hi">IoT / MQTT</span>
+        <span class="chip hi">Game Dev</span>
+        <span class="chip hi">Web Frontend</span>
+        <span class="chip hi">Hardware</span>
+        <span class="chip">Elétrica Residencial</span>
+        <span class="chip">Eletrônica Básica</span>
+        <span class="chip">3D / Blender</span>
+        <span class="chip">Firebase</span>
+        <span class="chip">Git / GitHub</span>
+        <span class="chip">Design Vetorial</span>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <p class="sec-label">Soft Skills</p>
+      <div class="chips">
+        <span class="chip gold">Autodidata</span>
+        <span class="chip gold">Curiosidade Técnica</span>
+        <span class="chip gold">Versatilidade</span>
+        <span class="chip gold">Criatividade</span>
+        <span class="chip gold">Resolução de Problemas</span>
+        <span class="chip gold">Scrum / Ágil</span>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <p class="sec-label">Certificações &amp; Cursos</p>
+      <div class="cert-item">
+        <span class="cert-name">Téc. Desenvolvimento de Jogos</span>
+        <span class="cert-inst">SENAI</span>
+      </div>
+      <div class="cert-item">
+        <span class="cert-name">Lógica de Programação</span>
+        <span class="cert-inst">Múltiplas instituições</span>
+      </div>
+      <div class="cert-item">
+        <span class="cert-name">Scrum — Metodologia Ágil</span>
+        <span class="cert-inst">Curso Online</span>
+      </div>
+      <div class="cert-item">
+        <span class="cert-name">Blender 3D</span>
+        <span class="cert-inst">Curso Online</span>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <p class="sec-label">Redes Sociais</p>
+      <div class="socials">
+        <a class="social-btn" href="https://www.instagram.com/thalisson_rr" target="_blank">
+          <img src="https://cdn.simpleicons.org/instagram/E1306C"> Instagram
+        </a>
+        <a class="social-btn" href="https://www.tiktok.com/@thalisson_rr" target="_blank">
+          <img src="https://cdn.simpleicons.org/tiktok/ffffff"> TikTok
+        </a>
+        <a class="social-btn" href="https://discord.com/users/1300515255226466545" target="_blank">
+          <img src="https://cdn.simpleicons.org/discord/5865F2"> Discord
+        </a>
+        <a class="social-btn" href="https://gubernavit.itch.io" target="_blank">
+          <img src="https://cdn.simpleicons.org/itchdotio/FA5C5C"> itch.io
+        </a>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+// CURSOR
+const cur = document.getElementById('cur');
+const ring = document.getElementById('curRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cur.style.left = mx - 6 + 'px';
+  cur.style.top  = my - 6 + 'px';
+});
+(function animRing() {
+  rx += (mx - rx) * 0.14;
+  ry += (my - ry) * 0.14;
+  ring.style.left = rx - 18 + 'px';
+  ring.style.top  = ry - 18 + 'px';
+  requestAnimationFrame(animRing);
+})();
+
+document.querySelectorAll('a, .chip, .tech-item, .card, .contact-chip, .social-btn').forEach(el => {
+  el.addEventListener('mouseenter', () => { ring.classList.add('hovered'); cur.style.transform = 'scale(0.5)'; });
+  el.addEventListener('mouseleave', () => { ring.classList.remove('hovered'); cur.style.transform = 'scale(1)'; });
+});
+
+// CARD GLOW
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%');
+    card.style.setProperty('--my', ((e.clientY - r.top)  / r.height * 100).toFixed(1) + '%');
+  });
+});
+
+// PARTICLES
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let W, H, dots = [];
+function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+resize(); window.addEventListener('resize', resize);
+for (let i = 0; i < 90; i++) dots.push({
+  x: Math.random()*W, y: Math.random()*H,
+  r: Math.random()*1.4+0.3,
+  vx: (Math.random()-.5)*.25,
+  vy: (Math.random()-.5)*.25,
+  a: Math.random()*.5+.1
+});
+(function draw() {
+  ctx.clearRect(0,0,W,H);
+  dots.forEach(d => {
+    d.x += d.vx; d.y += d.vy;
+    if(d.x<0) d.x=W; if(d.x>W) d.x=0;
+    if(d.y<0) d.y=H; if(d.y>H) d.y=0;
+    const dx=d.x-mx, dy=d.y-my, dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<100){ d.x+=dx/dist*.8; d.y+=dy/dist*.8; }
+    ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(249,115,22,${d.a})`; ctx.fill();
+  });
+  for(let i=0;i<dots.length;i++) for(let j=i+1;j<dots.length;j++){
+    const dx=dots[i].x-dots[j].x, dy=dots[i].y-dots[j].y, dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<110){ ctx.beginPath(); ctx.moveTo(dots[i].x,dots[i].y); ctx.lineTo(dots[j].x,dots[j].y);
+      ctx.strokeStyle=`rgba(249,115,22,${.07*(1-dist/110)})`; ctx.lineWidth=.6; ctx.stroke(); }
+  }
+  requestAnimationFrame(draw);
+})();
+
+// SCROLL REVEAL
+const obs = new IntersectionObserver(entries => {
+  entries.forEach((e,i) => { if(e.isIntersecting){ setTimeout(()=>e.target.classList.add('visible'),i*80); obs.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
