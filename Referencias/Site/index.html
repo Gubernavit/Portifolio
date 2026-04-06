@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Cosmic Studios — Portfólio de Thalisson Rodrigues Rocha. Game Dev, IoT, Web.">
+<title>Cosmic Studios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════
+   RESET & TOKENS
+═══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #08070a;
+  --bg2:      #0d0b12;
+  --surface:  #13111a;
+  --surface2: #1a1724;
+  --border:   #231f2e;
+  --border2:  #2e2840;
+
+  --purple:   #5A4FCF;
+  --purple2:  #7b72e8;
+  --purple3:  #a09aff;
+  --glow:     rgba(90,79,207,0.18);
+  --glow2:    rgba(90,79,207,0.06);
+
+  --text:     #ede9f8;
+  --text2:    #9d98b8;
+  --text3:    #5e5a78;
+
+  --font-head: 'Syne', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --nav-h: 68px;
+  --r: 12px;
+  --r-sm: 8px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-head);
+  cursor: none;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════════
+   CURSOR
+═══════════════════════════════════════════════ */
+#cur-dot {
+  width: 8px; height: 8px;
+  background: var(--purple3);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: width .15s, height .15s, opacity .2s;
+  mix-blend-mode: screen;
+}
+#cur-ring {
+  width: 38px; height: 38px;
+  border: 1.5px solid rgba(90,79,207,0.55);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: width .25s cubic-bezier(.22,1,.36,1),
+              height .25s cubic-bezier(.22,1,.36,1),
+              border-color .2s;
+}
+#cur-ring.hover { width: 60px; height: 60px; border-color: var(--purple); }
+#cur-ring.click { width: 28px; height: 28px; border-color: var(--purple3); }
+
+@media (hover: none) { #cur-dot, #cur-ring { display: none; } body { cursor: auto; } }
+
+/* ═══════════════════════════════════════════════
+   CANVAS BG
+═══════════════════════════════════════════════ */
+#bg-canvas {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0; opacity: .55;
+}
+
+/* ═══════════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px;
+  background: rgba(8,7,10,0);
+  border-bottom: 1px solid transparent;
+  transition: background .4s, border-color .4s, backdrop-filter .4s;
+}
+nav.scrolled {
+  background: rgba(8,7,10,0.82);
+  border-color: var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 11px;
+  text-decoration: none; color: var(--text);
+  font-size: 17px; font-weight: 700; letter-spacing: -.3px;
+}
+.nav-logo svg { width: 32px; height: 32px; }
+.nav-logo span em { color: var(--purple2); font-style: normal; }
+
+.nav-links {
+  display: flex; align-items: center; gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text2); text-decoration: none;
+  font-size: 13px; font-weight: 600; letter-spacing: .5px;
+  font-family: var(--font-mono);
+  transition: color .2s;
+  position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+  height: 1px; background: var(--purple2);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .25s cubic-bezier(.22,1,.36,1);
+}
+.nav-links a:hover { color: var(--text); }
+.nav-links a:hover::after { transform: scaleX(1); }
+
+.nav-cta {
+  padding: 8px 20px; border-radius: 7px;
+  background: var(--purple); color: var(--text) !important;
+  border: 1px solid rgba(90,79,207,0.5);
+  transition: background .2s, transform .15s, box-shadow .2s !important;
+}
+.nav-cta::after { display: none !important; }
+.nav-cta:hover {
+  background: var(--purple2) !important;
+  box-shadow: 0 0 24px rgba(90,79,207,0.35);
+  transform: translateY(-1px) !important;
+}
+
+/* Mobile nav */
+.nav-toggle { display: none; background: none; border: none; cursor: none; padding: 4px; }
+.nav-toggle span {
+  display: block; width: 22px; height: 2px;
+  background: var(--text); border-radius: 2px; margin: 5px 0;
+  transition: transform .3s, opacity .3s;
+}
+
+@media (max-width: 700px) {
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  .nav-links.open {
+    display: flex; flex-direction: column; align-items: flex-start;
+    position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0;
+    background: rgba(8,7,10,0.97);
+    padding: 32px 28px; gap: 20px;
+    backdrop-filter: blur(20px);
+  }
+  .nav-links.open a { font-size: 20px; }
+  .nav-toggle { display: block; }
+}
+
+/* ═══════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════ */
+.hero {
+  min-height: 100svh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: calc(var(--nav-h) + 40px) 48px 80px;
+  text-align: center;
+  position: relative; z-index: 1;
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute; top: 40%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 700px; height: 500px;
+  background: radial-gradient(ellipse, rgba(90,79,207,0.2) 0%, transparent 70%);
+  pointer-events: none; filter: blur(40px);
+  animation: pulseGlow 6s ease-in-out infinite;
+}
+@keyframes pulseGlow {
+  0%,100% { opacity: .7; transform: translate(-50%,-50%) scale(1); }
+  50%      { opacity: 1;  transform: translate(-50%,-50%) scale(1.1); }
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--purple2); margin-bottom: 24px;
+  opacity: 0; animation: fadeUp .6s ease forwards .1s;
+}
+
+.hero-logo-mark {
+  margin: 0 auto 28px;
+  width: 96px; height: 96px;
+  opacity: 0; animation: fadeUp .7s ease forwards .2s;
+  filter: drop-shadow(0 0 28px rgba(90,79,207,0.5));
+}
+
+.hero-title {
+  font-size: clamp(44px, 9vw, 100px);
+  font-weight: 800; line-height: .95; letter-spacing: -3px;
+  opacity: 0; animation: fadeUp .8s ease forwards .3s;
+}
+.hero-title .line2 { color: var(--purple2); display: block; }
+
+.hero-sub {
+  font-family: var(--font-mono);
+  font-size: clamp(12px, 1.8vw, 15px);
+  color: var(--text2); margin-top: 20px;
+  max-width: 520px; line-height: 1.8;
+  opacity: 0; animation: fadeUp .7s ease forwards .45s;
+}
+.hero-sub b { color: var(--purple3); font-weight: 400; }
+
+.hero-btns {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  justify-content: center; margin-top: 40px;
+  opacity: 0; animation: fadeUp .7s ease forwards .6s;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 28px; border-radius: var(--r-sm);
+  font-size: 13px; font-weight: 700; text-decoration: none;
+  transition: transform .15s, box-shadow .2s, background .2s;
+  letter-spacing: .3px;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn-primary {
+  background: var(--purple); color: var(--text);
+  border: 1px solid rgba(90,79,207,.5);
+  box-shadow: 0 4px 24px rgba(90,79,207,.25);
+}
+.btn-primary:hover { background: var(--purple2); box-shadow: 0 8px 32px rgba(90,79,207,.4); }
+.btn-outline {
+  background: transparent; color: var(--text2);
+  border: 1px solid var(--border2);
+}
+.btn-outline:hover { border-color: var(--purple); color: var(--text); background: var(--glow2); }
+
+.hero-scroll {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text3); letter-spacing: 2px;
+  opacity: 0; animation: fadeUp .6s ease forwards 1s;
+}
+.scroll-line {
+  width: 1px; height: 40px; background: linear-gradient(to bottom, var(--purple), transparent);
+  animation: scrollAnim 2s ease-in-out infinite;
+}
+@keyframes scrollAnim { 0%,100% { transform: scaleY(1); opacity: 1; } 50% { transform: scaleY(.5); opacity: .4; } }
+
+@media (max-width: 600px) {
+  .hero { padding-left: 24px; padding-right: 24px; }
+  .hero-title { letter-spacing: -2px; }
+}
+
+/* ═══════════════════════════════════════════════
+   SECTIONS COMMON
+═══════════════════════════════════════════════ */
+section { position: relative; z-index: 1; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
+@media (max-width: 600px) { .container { padding: 0 24px; } }
+
+.sec-header { margin-bottom: 56px; }
+.sec-label {
+  font-family: var(--font-mono);
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--purple2); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec-label::before { content: '//'; color: var(--purple); margin-right: 4px; }
+.sec-title {
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 800; letter-spacing: -1.5px; line-height: 1.05;
+}
+.sec-title .accent { color: var(--purple2); }
+.sec-desc { color: var(--text2); font-family: var(--font-mono); font-size: 13px; line-height: 1.8; margin-top: 14px; max-width: 520px; }
+
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .65s ease, transform .65s ease; }
+.reveal.in { opacity: 1; transform: none; }
+
+/* ═══════════════════════════════════════════════
+   ABOUT
+═══════════════════════════════════════════════ */
+#about { padding: 120px 0; }
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px; align-items: start;
+}
+@media (max-width: 800px) { .about-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+.about-text p {
+  font-family: var(--font-mono);
+  font-size: 14px; color: var(--text2);
+  line-height: 1.9; margin-bottom: 16px;
+}
+.about-text p .hi { color: var(--purple3); }
+.about-text p strong { color: var(--text); }
+
+.about-quip {
+  display: inline-block; margin-top: 4px;
+  font-family: var(--font-mono); font-size: 12px;
+  color: #fbbf24;
+  background: rgba(251,191,36,0.06);
+  border: 1px solid rgba(251,191,36,0.18);
+  border-radius: var(--r-sm); padding: 9px 16px;
+}
+
+.about-stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px;
+  transition: border-color .2s, transform .2s;
+  position: relative; overflow: hidden;
+}
+.stat-card::after {
+  content: ''; position: absolute;
+  inset: 0; background: var(--glow2);
+  opacity: 0; transition: opacity .3s;
+}
+.stat-card:hover { border-color: var(--border2); transform: translateY(-3px); }
+.stat-card:hover::after { opacity: 1; }
+.stat-num {
+  font-size: 36px; font-weight: 800;
+  color: var(--purple2); letter-spacing: -2px; display: block;
+}
+.stat-label { font-family: var(--font-mono); font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+/* Skills */
+.skill-list { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 28px; }
+.skill-tag {
+  font-family: var(--font-mono); font-size: 10.5px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text2); border-radius: 5px; padding: 5px 12px;
+  transition: border-color .2s, color .2s, transform .15s;
+}
+.skill-tag:hover { border-color: var(--purple); color: var(--purple3); transform: translateY(-1px); }
+.skill-tag.core { border-color: rgba(90,79,207,.35); color: var(--purple3); background: rgba(90,79,207,.05); }
+
+/* ═══════════════════════════════════════════════
+   STATUS CARDS (Discord/Music)
+═══════════════════════════════════════════════ */
+#status { padding: 0 0 120px; }
+
+.status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 700px) { .status-grid { grid-template-columns: 1fr; } }
+
+.status-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 22px 24px;
+  display: flex; gap: 16px; align-items: flex-start;
+  transition: border-color .2s, transform .2s;
+}
+.status-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+.status-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+  background: var(--surface2);
+}
+.status-body { flex: 1; min-width: 0; }
+.status-source { font-family: var(--font-mono); font-size: 10px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+.status-main { font-size: 13.5px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status-sub { font-family: var(--font-mono); font-size: 11px; color: var(--text2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #3ba55d; flex-shrink: 0; margin-top: 6px;
+  box-shadow: 0 0 8px #3ba55d;
+  animation: blink 2.5s ease infinite;
+}
+.status-dot.idle { background: #faa81a; box-shadow: 0 0 8px #faa81a; }
+.status-dot.dnd  { background: #ed4245; box-shadow: 0 0 8px #ed4245; }
+.status-dot.off  { background: var(--text3); box-shadow: none; animation: none; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+.music-bar { display: flex; align-items: flex-end; gap: 3px; height: 16px; }
+.music-bar span {
+  width: 3px; border-radius: 2px;
+  background: var(--purple2);
+  animation: musicBar .8s ease infinite;
+}
+.music-bar span:nth-child(2) { animation-delay: .2s; }
+.music-bar span:nth-child(3) { animation-delay: .4s; }
+.music-bar span:nth-child(4) { animation-delay: .1s; }
+@keyframes musicBar { 0%,100%{height:4px} 50%{height:14px} }
+
+/* ═══════════════════════════════════════════════
+   PROJECTS
+═══════════════════════════════════════════════ */
+#projects { padding: 0 0 140px; }
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.project-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden;
+  transition: border-color .25s, transform .25s, box-shadow .25s;
+  text-decoration: none; color: var(--text);
+  display: flex; flex-direction: column;
+  position: relative;
+  cursor: none;
+}
+.project-card:hover {
+  border-color: rgba(90,79,207,.5);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0,0,0,.4), 0 0 0 1px rgba(90,79,207,.15);
+}
+
+.project-thumb {
+  height: 200px; position: relative;
+  background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.project-thumb-inner {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.project-thumb-bg {
+  position: absolute; inset: 0;
+  opacity: .15; background-size: cover; background-position: center;
+  filter: blur(8px); transform: scale(1.1);
+  transition: opacity .3s, transform .3s;
+}
+.project-card:hover .project-thumb-bg { opacity: .3; transform: scale(1.15); }
+
+.project-icon { position: relative; z-index: 1; }
+
+.project-tag-row {
+  position: absolute; bottom: 12px; left: 12px;
+  display: flex; gap: 6px;
+}
+.project-tag {
+  font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: 1px; text-transform: uppercase;
+  background: rgba(8,7,10,.75); border: 1px solid var(--border2);
+  color: var(--text2); border-radius: 4px; padding: 4px 8px;
+  backdrop-filter: blur(8px);
+}
+.project-tag.active { border-color: rgba(90,79,207,.5); color: var(--purple3); background: rgba(90,79,207,.15); }
+
+.project-body { padding: 22px; flex: 1; display: flex; flex-direction: column; }
+.project-title { font-size: 18px; font-weight: 700; letter-spacing: -.4px; }
+.project-desc { font-family: var(--font-mono); font-size: 12px; color: var(--text2); line-height: 1.75; margin-top: 8px; flex: 1; }
+.project-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 18px; padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.project-stack { display: flex; gap: 5px; flex-wrap: wrap; }
+.stack-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  display: inline-block;
+}
+.project-cta {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--purple2); letter-spacing: 1px;
+  display: flex; align-items: center; gap: 4px;
+  transition: gap .2s, color .2s;
+}
+.project-card:hover .project-cta { gap: 8px; color: var(--purple3); }
+
+/* ═══════════════════════════════════════════════
+   CONTACT / SOCIALS
+═══════════════════════════════════════════════ */
+#contact { padding: 0 0 140px; }
+
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+@media (max-width: 800px) { .contact-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+.contact-text p { font-family: var(--font-mono); font-size: 13.5px; color: var(--text2); line-height: 1.9; margin-bottom: 12px; }
+.contact-text a { color: var(--purple3); text-decoration: none; }
+.contact-text a:hover { text-decoration: underline; }
+
+.socials-list { display: flex; flex-direction: column; gap: 10px; }
+.social-link {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px; border-radius: var(--r-sm);
+  background: var(--surface); border: 1px solid var(--border);
+  text-decoration: none; color: var(--text2);
+  font-family: var(--font-mono); font-size: 12px;
+  transition: border-color .2s, color .2s, transform .15s, background .2s;
+}
+.social-link:hover { border-color: var(--purple); color: var(--text); background: var(--glow2); transform: translateX(4px); }
+.social-link .s-icon { font-size: 18px; width: 28px; text-align: center; }
+.social-link .s-name { font-weight: 700; color: var(--text); font-size: 13px; margin-bottom: 1px; display: block; font-family: var(--font-head); }
+.social-link .s-handle { font-size: 10px; color: var(--text3); }
+.social-link .s-arrow { margin-left: auto; opacity: 0; transition: opacity .2s, transform .2s; }
+.social-link:hover .s-arrow { opacity: 1; transform: translateX(3px); }
+
+/* ═══════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════ */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative; z-index: 1;
+}
+@media (max-width: 600px) { footer { flex-direction: column; gap: 12px; padding: 28px 24px; text-align: center; } }
+
+.footer-logo { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 700; color: var(--text2); text-decoration: none; }
+.footer-logo svg { width: 24px; height: 24px; }
+.footer-copy { font-family: var(--font-mono); font-size: 11px; color: var(--text3); }
+.footer-mono { font-family: var(--font-mono); font-size: 10px; color: var(--text3); }
+.footer-mono .v { color: var(--purple); }
+
+/* ═══════════════════════════════════════════════
+   DIVIDER
+═══════════════════════════════════════════════ */
+.hr-fade {
+  border: none; margin: 0;
+  height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent);
+}
+
+/* ═══════════════════════════════════════════════
+   ANIMS
+═══════════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Custom cursor -->
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
+
+<!-- BG canvas -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- ═══════════ NAV ═══════════ -->
+<nav id="nav">
+  <a class="nav-logo" href="#home">
+    <!-- Cosmic Journey icon (purple version SVG inline) -->
+    <svg viewBox="0 0 136 136" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M69.28 12.55C69.99 12.61 70.71 12.67 71.42 12.71L71.98 12.74 73.1 12.81C74.05 12.87 74.91 12.98 75.83 13.23 76.09 13.29 76.35 13.34 76.61 13.39 83.5 14.77 90.34 17.19 95.94 21.56L96.31 21.84 96.68 22.22C97.44 22.54 97.87 22.28 98.61 21.99L99.14 21.77 100.18 21.36 100.69 21.15C101.38 20.89 102.07 20.69 102.78 20.49L103.29 20.06 103.71 20.09C104.47 20.08 105.18 19.88 105.92 19.7 107.07 19.42 108.18 19.2 109.38 19.17L109.38 18.88C114.33 18.66 114.33 18.66 116.6 18.78L116.91 18.8C117.44 18.83 117.68 18.87 118.13 19.17L118.88 19.42C120.42 19.97 121.57 20.91 122.44 22.29 123.85 25.34 123.2 28.7 122.1 31.73 121.65 32.94 121.11 34.09 120.51 35.22L120.1 36.02C118.88 38.39 117.41 40.63 115.91 42.83L115.67 43.18C115.34 43.65 115.01 44.12 114.66 44.57L114.37 44.95C114.28 45.05 114.21 45.15 114.12 45.25 113.7 46.25 114.36 47.72 114.62 48.71 117.35 59.44 116.23 70.93 111.45 80.92L111.31 81.23C109.39 85.31 106.78 89.03 103.72 92.33L102.84 93.39C102.18 94.11 102.18 94.11 101.66 94.28L101.66 94.58C101.47 94.77 101.47 94.77 101.19 95 101.08 95.1 100.98 95.19 100.86 95.28L100.47 95.62 100.01 96.02C98.999 96.91 97.97 97.73 96.88 98.5 96.45 98.81 96.16 99.04 95.87 99.48L95.57 99.48C95.2 99.71 94.83 99.95 94.47 100.19 91.07 102.41 87.42 104.3 83.55 105.56L83.12 105.7C74.76 108.38 66.25 108.57 57.72 106.6L57.38 106.53C51.98 105.34 46.87 102.59 42.4 99.41L42.05 99.17 41.29 98.47C40.85 98.02 40.46 97.69 39.91 97.4 39.06 97.41 38.35 97.69 37.58 97.99L36.93 98.22 35.95 98.56 32.89 99.42L32.43 99.53C31.79 99.68 31.22 99.79 30.55 99.77L30.41 100.07C30.12 100.12 30.12 100.12 29.75 100.15L28.15 100.33C23.6 101 18.09 101.3 14.16 98.44L13.78 98.14 13.45 97.88C12.47 97.02 11.62 95.54 11.34 94.26L11.26 93.98 10.96 93.84 11.04 93.54C11.11 93.11 11.11 92.71 11.09 92.27 10.98 88.81 12.31 85.56 13.93 82.55L14.19 82.06C16.25 78.3 19 74.89 21.81 71.66L22.54 70.68C22.44 70.26 22.33 69.84 22.21 69.43 20.06 61.57 20.99 52.92 23.55 45.27L23.68 44.89 23.79 44.55C23.89 44.24 23.89 44.24 23.88 43.81L24.17 43.81 24.25 43.57C26.07 37.98 29.4 33.11 33.15 28.65L33.59 28.1 34.12 27.48 34.41 27.48 34.41 27.19 34.71 27.19 34.82 26.93C35.42 25.85 36.6 25.01 37.53 24.22L37.91 23.89C41.24 21.05 47.82 15.61 52.38 15.61L52.52 15.31C52.81 15.21 52.81 15.21 53.2 15.12 53.87 14.95 54.53 14.74 55.19 14.52 59.11 13.27 63.23 12.76 67.34 12.66L68.02 12.56 69.28 12.55ZM102.13 24.31L101.78 24.4C101.21 24.55 100.86 24.67 100.47 25.11L100.89 25.46 101.42 25.91 101.7 26.14C102.38 26.71 102.38 26.71 102.55 27.04L102.84 27.04 102.96 27.3C103.15 27.66 103.36 27.86 103.65 28.13 106.04 30.49 107.87 33.54 109.51 36.44L109.78 36.89C110.34 37.93 110.34 37.93 110.14 38.61 109.91 39.04 109.66 39.42 109.38 39.8L109.18 40.08C109.02 40.31 108.85 40.53 108.67 40.75L108.28 41.24 108.09 41.49C107.83 41.81 107.58 42.14 107.33 42.47 105.65 44.67 103.87 46.79 101.97 48.8L101.51 49.6 101.21 49.6C101 49.81 101 49.81 100.78 50.08 100.11 50.87 99.38 51.6 98.65 52.33L97.95 53.03 97.5 53.48 97.09 53.89C96.76 54.2 96.76 54.2 96.46 54.35L96.46 54.65C96.37 54.69 96.29 54.73 96.2 54.77 95.86 54.95 95.62 55.15 95.34 55.42L94.75 55.98 94.14 56.58C93.55 57.02 93.55 57.02 93.2 57.32 92.69 57.29 92.25 57.2 91.76 57.06 90.05 56.57 88.41 56.65 86.81 57.47 85.41 58.34 84.44 59.58 83.99 61.18 83.88 61.75 83.84 62.19 83.92 62.77 84.11 64.25 84.11 64.25 83.64 64.86 83.05 65.43 82.37 65.87 81.68 66.3L80.68 66.95C78.57 68.38 76.32 69.58 74.03 70.69L73.23 71.09C68.09 73.58 61.95 75.62 56.27 73.97 54.74 73.44 53.57 72.39 52.82 70.98 51.77 68.75 51.92 66.6 52.72 64.32 54.31 60.03 57.74 56 61.28 53.16L61.71 52.82C65.59 49.72 69.72 46.99 74.2 44.84L75.09 44.41C77.48 43.24 79.97 42.37 82.48 41.53L82.77 41.43C83.77 41.1 84.75 40.78 85.77 40.55L86.07 40.47C87.8 40.05 89.59 39.88 91.36 39.75L91.79 39.72 92.17 39.69 92.6 39.51 92.6 39.8 92.85 39.85C94.97 40.23 96.78 40.65 98.54 41.96L99.13 42.33C98.68 40.66 97.78 39.79 96.31 38.91 91.62 36.64 85.93 37.23 80.98 38.24L79.79 38.47C69.66 40.49 59.84 45.11 51.03 50.38L50.17 50.89C46.87 52.84 43.67 54.97 40.65 57.32L39.97 57.84C37.53 59.73 35.15 61.68 32.88 63.78L31.82 64.72C31.39 65.09 31.05 65.48 30.7 65.93L29.51 67.11C28.63 67.98 27.79 68.86 27.02 69.83L25.99 71.05C22.01 75.85 17.09 82.78 17.64 89.38 17.82 90.7 18.12 91.9 18.98 92.95L19.27 92.95 19.38 93.21C20.07 94.4 21.77 94.82 23.01 95.18 24.28 95.49 25.52 95.51 26.82 95.52L27.13 95.52C30.07 95.52 32.91 95.02 35.75 94.28 35.89 94.03 35.89 94.03 35.9 93.69 35.66 93.4 35.43 93.16 35.16 92.91L34.47 92.24C34.04 91.82 33.63 91.34 33.23 90.87L32.9 90.49C31.18 88.48 29.7 86.31 28.35 84.03L27.9 83.3C27.27 82.28 26.76 81.2 26.25 80.11L26.02 79.64 25.81 79.19 25.62 78.78C25.49 78.33 25.51 78.1 25.66 77.66 25.82 77.38 25.82 77.38 26.03 77.11L26.26 76.81 26.51 76.49 26.77 76.15C27.65 75.04 28.57 73.96 29.52 72.91L29.72 72.68C30.78 71.48 31.91 70.35 33.04 69.21L33.26 68.99C34.12 68.13 34.98 67.3 35.9 66.52L36.39 66.1C38.11 64.61 39.88 63.16 41.69 61.77L42.4 61.22C43.15 60.64 43.9 60.09 44.68 59.56L47.26 57.76C50.19 55.68 53.23 53.84 56.38 52.13 55.71 52.92 55 53.67 54.24 54.4L53.71 54.94 53.41 55.24 53.41 55.54C53.61 55.82 51.82 56.9 51.82 56.9 50.43 58.9 49.41 61.03 49.41 61.03 47.46 64.64 46.86 68.49 47.88 71.95 48.92 74.82 50.92 76.91 53.64 78.25 54.66 78.73 55.73 79.03 56.83 79.29L57.29 79.4C60.77 80.08 64.43 79.48 67.81 78.55L67.81 78.25 68.07 78.34C68.47 78.41 68.67 78.35 69.05 78.21L69.42 78.08 69.82 77.93 70.22 77.79C71.73 77.24 73.19 76.61 74.64 75.93L75.01 75.76 75.36 75.59 75.68 75.44C76 75.27 76.28 75.06 76.57 74.84 76.92 74.66 77.27 74.49 77.62 74.33 79.07 73.62 80.42 72.76 81.77 71.87L82.09 71.66C83.41 70.78 84.67 69.84 85.91 68.83L86.15 68.63C86.33 68.48 86.51 68.33 86.68 68.17 86.96 68 86.96 68 87.31 68.04L87.7 68.16C89.56 68.67 91.13 68.78 92.92 67.95 94.32 67.15 95.15 66.09 95.72 64.59 95.87 64.03 95.89 63.49 95.89 62.91L95.88 62.39C95.87 62.01 95.83 61.69 95.75 61.33L95.72 60.88C96.31 60.23 96.99 59.66 97.65 59.08L98.24 58.51 98.24 58.21 98.5 58.1C98.9 57.88 99.18 57.61 99.51 57.28L99.89 56.89 100.29 56.49C100.42 56.36 100.55 56.22 100.69 56.09 101.36 55.42 102.01 54.73 102.63 54.01 102.84 53.76 102.84 53.76 103.09 53.52 103.32 53.32 103.32 53.32 103.29 53.02L103.59 53.02C103.8 52.78 103.99 52.54 104.19 52.29 104.64 51.73 105.09 51.19 105.57 50.67 106.4 49.76 107.14 48.79 107.89 47.82L108.14 47.5 108.91 46.49 109.15 46.18C109.38 45.89 109.6 45.59 109.82 45.3L110.04 45.01C110.46 44.47 110.46 44.47 110.56 43.81L111.01 43.66C111.22 43.41 111.22 43.41 111.42 43.1L111.65 42.74 111.9 42.35 112.16 41.94C113 40.61 113.8 39.25 114.57 37.88L114.74 37.58C116.55 34.39 118.16 30.44 117.24 26.74L116.8 26.74 116.8 26.44 117.09 26.44C116.78 25.31 116.06 24.46 115.08 23.82 111.17 21.8 106.13 23.3 102.13 24.31Z" fill="#5A4FCF"/>
+    </svg>
+    <span>Cosmic <em>Studios</em></span>
+  </a>
+
+  <ul class="nav-links" id="nav-links">
+    <li><a href="#about">Sobre</a></li>
+    <li><a href="#status">Status</a></li>
+    <li><a href="#projects">Projetos</a></li>
+    <li><a href="#contact" class="nav-cta">Contato</a></li>
+  </ul>
+
+  <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="hero" id="home">
+  <div class="hero-glow"></div>
+
+  <svg class="hero-logo-mark" viewBox="0 0 136 136" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M69.28 12.55C69.99 12.61 70.71 12.67 71.42 12.71L71.98 12.74 73.1 12.81C74.05 12.87 74.91 12.98 75.83 13.23 76.09 13.29 76.35 13.34 76.61 13.39 83.5 14.77 90.34 17.19 95.94 21.56L96.31 21.84 96.68 22.22C97.44 22.54 97.87 22.28 98.61 21.99L99.14 21.77 100.18 21.36 100.69 21.15C101.38 20.89 102.07 20.69 102.78 20.49L103.29 20.06 103.71 20.09C104.47 20.08 105.18 19.88 105.92 19.7 107.07 19.42 108.18 19.2 109.38 19.17L109.38 18.88C114.33 18.66 114.33 18.66 116.6 18.78L116.91 18.8C117.44 18.83 117.68 18.87 118.13 19.17L118.88 19.42C120.42 19.97 121.57 20.91 122.44 22.29 123.85 25.34 123.2 28.7 122.1 31.73 121.65 32.94 121.11 34.09 120.51 35.22L120.1 36.02C118.88 38.39 117.41 40.63 115.91 42.83L115.67 43.18C115.34 43.65 115.01 44.12 114.66 44.57L114.37 44.95C114.28 45.05 114.21 45.15 114.12 45.25 113.7 46.25 114.36 47.72 114.62 48.71 117.35 59.44 116.23 70.93 111.45 80.92L111.31 81.23C109.39 85.31 106.78 89.03 103.72 92.33L102.84 93.39C102.18 94.11 102.18 94.11 101.66 94.28L101.66 94.58C101.47 94.77 101.47 94.77 101.19 95 101.08 95.1 100.98 95.19 100.86 95.28L100.47 95.62 100.01 96.02C98.999 96.91 97.97 97.73 96.88 98.5 96.45 98.81 96.16 99.04 95.87 99.48L95.57 99.48C95.2 99.71 94.83 99.95 94.47 100.19 91.07 102.41 87.42 104.3 83.55 105.56L83.12 105.7C74.76 108.38 66.25 108.57 57.72 106.6L57.38 106.53C51.98 105.34 46.87 102.59 42.4 99.41L42.05 99.17 41.29 98.47C40.85 98.02 40.46 97.69 39.91 97.4 39.06 97.41 38.35 97.69 37.58 97.99L36.93 98.22 35.95 98.56 32.89 99.42L32.43 99.53C31.79 99.68 31.22 99.79 30.55 99.77L30.41 100.07C30.12 100.12 30.12 100.12 29.75 100.15L28.15 100.33C23.6 101 18.09 101.3 14.16 98.44L13.78 98.14 13.45 97.88C12.47 97.02 11.62 95.54 11.34 94.26L11.26 93.98 10.96 93.84 11.04 93.54C11.11 93.11 11.11 92.71 11.09 92.27 10.98 88.81 12.31 85.56 13.93 82.55L14.19 82.06C16.25 78.3 19 74.89 21.81 71.66L22.54 70.68C22.44 70.26 22.33 69.84 22.21 69.43 20.06 61.57 20.99 52.92 23.55 45.27L23.68 44.89 23.79 44.55C23.89 44.24 23.89 44.24 23.88 43.81L24.17 43.81 24.25 43.57C26.07 37.98 29.4 33.11 33.15 28.65L33.59 28.1 34.12 27.48 34.41 27.48 34.41 27.19 34.71 27.19 34.82 26.93C35.42 25.85 36.6 25.01 37.53 24.22L37.91 23.89C41.24 21.05 47.82 15.61 52.38 15.61L52.52 15.31C52.81 15.21 52.81 15.21 53.2 15.12 53.87 14.95 54.53 14.74 55.19 14.52 59.11 13.27 63.23 12.76 67.34 12.66L68.02 12.56 69.28 12.55Z" fill="#5A4FCF"/>
+  </svg>
+
+  <p class="hero-eyebrow">Cosmic Studios · Thalisson Rodrigues Rocha</p>
+
+  <h1 class="hero-title">
+    Game Dev.<br>
+    <span class="line2">IoT. Web.</span>
+  </h1>
+
+  <p class="hero-sub">
+    Do firmware à interface. Do jogo ao dashboard.<br>
+    <b>Generalista</b> de verdade — do hardware ao pixel.
+  </p>
+
+  <div class="hero-btns">
+    <a class="btn btn-primary" href="#projects">Ver Projetos</a>
+    <a class="btn btn-outline" href="#about">Sobre mim</a>
+  </div>
+
+  <div class="hero-scroll">
+    <span>scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<hr class="hr-fade">
+
+<!-- ═══════════ ABOUT ═══════════ -->
+<section id="about">
+  <div class="container">
+    <div class="sec-header reveal">
+      <p class="sec-label">Sobre</p>
+      <h2 class="sec-title">Quem é o <span class="accent">Thalisson</span>?</h2>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p>
+          Tenho <span class="hi">17 anos</span>, sou de <strong>Uberlândia, MG</strong> e desde os 13 construo coisas com o que tiver em mãos — literalmente. Durante a pandemia montei um <strong>sistema RF caseiro</strong> com peças de impressora e brinquedos pra controlar luz e trava de porta.
+        </p>
+        <p>
+          Hoje estudo <strong>Engenharia da Computação</strong> na Anhanguera/Pitágoras e tenho o técnico em <strong>Desenvolvimento de Jogos Digitais</strong> pelo SENAI concluído. Minha filosofia é simples: <span class="hi">sei um pouco de tudo e domino o que importa no momento.</span>
+        </p>
+        <p>
+          Minhas áreas de foco são <strong>Game Dev</strong> (Unity, Godot), <strong>IoT e Sistemas Embarcados</strong> (ESP32, C++, MQTT), <strong>Web Frontend</strong> e <strong>Eletrônica Avançada</strong>.
+        </p>
+        <code class="about-quip">if(funcionando){ NaoMecher(); }</code>
+
+        <div class="skill-list" style="margin-top:28px">
+          <span class="skill-tag core">C++</span>
+          <span class="skill-tag core">C#</span>
+          <span class="skill-tag core">Unity</span>
+          <span class="skill-tag core">Godot</span>
+          <span class="skill-tag core">ESP32</span>
+          <span class="skill-tag core">MQTT</span>
+          <span class="skill-tag">JavaScript</span>
+          <span class="skill-tag">Python</span>
+          <span class="skill-tag">Lua</span>
+          <span class="skill-tag">Firebase</span>
+          <span class="skill-tag">Blender</span>
+          <span class="skill-tag">Git</span>
+          <span class="skill-tag">HTML5/CSS3</span>
+          <span class="skill-tag">Inkscape</span>
+          <span class="skill-tag">Krita</span>
+        </div>
+      </div>
+
+      <div class="about-stats reveal" style="transition-delay:.15s">
+        <div class="stat-card">
+          <span class="stat-num">4+</span>
+          <span class="stat-label">anos construindo projetos reais</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num">2</span>
+          <span class="stat-label">formações concluída / cursando</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num">∞</span>
+          <span class="stat-label">projetos começados às 2h da manhã</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num">1</span>
+          <span class="stat-label">jogo publicado em alpha</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="hr-fade">
+
+<!-- ═══════════ STATUS ═══════════ -->
+<section id="status">
+  <div class="container" style="padding-top: 80px;">
+    <div class="sec-header reveal">
+      <p class="sec-label">Ao Vivo</p>
+      <h2 class="sec-title">O que estou <span class="accent">fazendo agora</span></h2>
+    </div>
+
+    <div class="status-grid">
+      <!-- Discord Status -->
+      <div class="status-card reveal" id="discord-card">
+        <div class="status-icon">🎮</div>
+        <div class="status-body">
+          <div class="status-source">Discord · Thalisson_rr</div>
+          <div class="status-main" id="discord-status">Carregando...</div>
+          <div class="status-sub" id="discord-activity">aguardando dados</div>
+        </div>
+        <div class="status-dot off" id="discord-dot"></div>
+      </div>
+
+      <!-- Last.fm -->
+      <div class="status-card reveal" style="transition-delay:.1s" id="music-card">
+        <div class="status-icon">🎵</div>
+        <div class="status-body">
+          <div class="status-source">Last.fm · Gubernavit</div>
+          <div class="status-main" id="music-track">Carregando...</div>
+          <div class="status-sub" id="music-artist">aguardando dados</div>
+        </div>
+        <div class="music-bar" id="music-bar" style="display:none">
+          <span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="hr-fade" style="margin-top:80px">
+
+<!-- ═══════════ PROJECTS ═══════════ -->
+<section id="projects" style="padding-top:80px">
+  <div class="container">
+    <div class="sec-header reveal">
+      <p class="sec-label">Portfólio</p>
+      <h2 class="sec-title">Projetos <span class="accent">em destaque</span></h2>
+      <p class="sec-desc">Clique num projeto para ver mais detalhes, baixar ou jogar.</p>
+    </div>
+
+    <div class="projects-grid">
+
+      <!-- COSMIC JOURNEY -->
+      <a class="project-card reveal" href="projects/cosmic-journey.html">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background: radial-gradient(ellipse at center, #5A4FCF44 0%, #08070a 70%);"></div>
+          <div class="project-thumb-inner">
+            <div class="project-icon">
+              <svg width="80" height="80" viewBox="0 0 136 136" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M69.28 12.55C69.99 12.61 70.71 12.67 71.42 12.71L71.98 12.74 73.1 12.81C74.05 12.87 74.91 12.98 75.83 13.23 76.09 13.29 76.35 13.34 76.61 13.39 83.5 14.77 90.34 17.19 95.94 21.56L96.31 21.84 96.68 22.22C97.44 22.54 97.87 22.28 98.61 21.99L99.14 21.77 100.18 21.36 100.69 21.15C101.38 20.89 102.07 20.69 102.78 20.49L103.29 20.06 103.71 20.09C104.47 20.08 105.18 19.88 105.92 19.7 107.07 19.42 108.18 19.2 109.38 19.17L109.38 18.88C114.33 18.66 114.33 18.66 116.6 18.78L116.91 18.8C117.44 18.83 117.68 18.87 118.13 19.17L118.88 19.42C120.42 19.97 121.57 20.91 122.44 22.29 123.85 25.34 123.2 28.7 122.1 31.73 121.65 32.94 121.11 34.09 120.51 35.22L120.1 36.02C118.88 38.39 117.41 40.63 115.91 42.83L115.67 43.18C115.34 43.65 115.01 44.12 114.66 44.57L114.37 44.95C114.28 45.05 114.21 45.15 114.12 45.25 113.7 46.25 114.36 47.72 114.62 48.71 117.35 59.44 116.23 70.93 111.45 80.92L111.31 81.23C109.39 85.31 106.78 89.03 103.72 92.33L102.84 93.39C102.18 94.11 102.18 94.11 101.66 94.28L101.66 94.58C101.47 94.77 101.47 94.77 101.19 95 101.08 95.1 100.98 95.19 100.86 95.28L100.47 95.62 100.01 96.02C98.999 96.91 97.97 97.73 96.88 98.5 96.45 98.81 96.16 99.04 95.87 99.48L95.57 99.48C95.2 99.71 94.83 99.95 94.47 100.19 91.07 102.41 87.42 104.3 83.55 105.56L83.12 105.7C74.76 108.38 66.25 108.57 57.72 106.6L57.38 106.53C51.98 105.34 46.87 102.59 42.4 99.41L42.05 99.17 41.29 98.47C40.85 98.02 40.46 97.69 39.91 97.4 39.06 97.41 38.35 97.69 37.58 97.99L36.93 98.22 35.95 98.56 32.89 99.42L32.43 99.53C31.79 99.68 31.22 99.79 30.55 99.77L30.41 100.07C30.12 100.12 30.12 100.12 29.75 100.15L28.15 100.33C23.6 101 18.09 101.3 14.16 98.44L13.78 98.14 13.45 97.88C12.47 97.02 11.62 95.54 11.34 94.26L11.26 93.98 10.96 93.84 11.04 93.54C11.11 93.11 11.11 92.71 11.09 92.27 10.98 88.81 12.31 85.56 13.93 82.55L14.19 82.06C16.25 78.3 19 74.89 21.81 71.66L22.54 70.68C22.44 70.26 22.33 69.84 22.21 69.43 20.06 61.57 20.99 52.92 23.55 45.27L23.68 44.89 23.79 44.55C23.89 44.24 23.89 44.24 23.88 43.81L24.17 43.81 24.25 43.57C26.07 37.98 29.4 33.11 33.15 28.65L33.59 28.1 34.12 27.48 34.41 27.48 34.41 27.19 34.71 27.19 34.82 26.93C35.42 25.85 36.6 25.01 37.53 24.22L37.91 23.89C41.24 21.05 47.82 15.61 52.38 15.61L52.52 15.31C52.81 15.21 52.81 15.21 53.2 15.12 53.87 14.95 54.53 14.74 55.19 14.52 59.11 13.27 63.23 12.76 67.34 12.66L68.02 12.56 69.28 12.55Z" fill="#5A4FCF" filter="url(#glow)"/>
+                <defs><filter id="glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+              </svg>
+            </div>
+          </div>
+          <div class="project-tag-row">
+            <span class="project-tag active">Alpha Pública</span>
+            <span class="project-tag">Unity</span>
+          </div>
+        </div>
+        <div class="project-body">
+          <h3 class="project-title">Cosmic Journey</h3>
+          <p class="project-desc">Jogo top-down pixel art de ação em desenvolvimento ativo. Alpha disponível para jogar no navegador ou baixar. Arte, código e design 100% autorais.</p>
+          <div class="project-footer">
+            <div class="project-stack">
+              <span class="stack-dot" style="background:#5A4FCF" title="Unity/C#"></span>
+              <span class="stack-dot" style="background:#3DDC84" title="Godot"></span>
+              <span class="stack-dot" style="background:#ff6b6b" title="Arte autoral"></span>
+            </div>
+            <span class="project-cta">Ver projeto →</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- GUBER-LAB -->
+      <a class="project-card reveal" href="#" style="transition-delay:.1s" onclick="alert('Em breve!'); return false;">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background: radial-gradient(ellipse at center, #E7352C44 0%, #08070a 70%);"></div>
+          <div class="project-thumb-inner" style="font-size:64px">🔌</div>
+          <div class="project-tag-row">
+            <span class="project-tag active">Live</span>
+            <span class="project-tag">IoT</span>
+          </div>
+        </div>
+        <div class="project-body">
+          <h3 class="project-title">GUBER-LAB</h3>
+          <p class="project-desc">Dashboard IoT com controle de 8 relés via ESP32, MQTT/HiveMQ, Firebase Auth e automações agendadas. End-to-end do firmware ao front-end.</p>
+          <div class="project-footer">
+            <div class="project-stack">
+              <span class="stack-dot" style="background:#E7352C" title="ESP32/C++"></span>
+              <span class="stack-dot" style="background:#FFCA28" title="Firebase"></span>
+              <span class="stack-dot" style="background:#660066" title="MQTT"></span>
+              <span class="stack-dot" style="background:#f7df1e" title="JavaScript"></span>
+            </div>
+            <span class="project-cta">Em breve →</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Sistema RF -->
+      <a class="project-card reveal" href="#" style="transition-delay:.2s" onclick="alert('Em breve!'); return false;">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background: radial-gradient(ellipse at center, #fbbf2444 0%, #08070a 70%);"></div>
+          <div class="project-thumb-inner" style="font-size:64px">📡</div>
+          <div class="project-tag-row">
+            <span class="project-tag">Hardware</span>
+            <span class="project-tag">2020</span>
+          </div>
+        </div>
+        <div class="project-body">
+          <h3 class="project-title">Sistema RF Caseiro</h3>
+          <p class="project-desc">Construído com 13 anos durante a pandemia com peças recicladas. Transmitia sinais para controlar luz e trava de porta à distância — zero kit pronto.</p>
+          <div class="project-footer">
+            <div class="project-stack">
+              <span class="stack-dot" style="background:#fbbf24" title="Eletrônica"></span>
+              <span class="stack-dot" style="background:#9ca3af" title="Hardware"></span>
+            </div>
+            <span class="project-cta">Em breve →</span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<hr class="hr-fade" style="margin-top:80px">
+
+<!-- ═══════════ CONTACT ═══════════ -->
+<section id="contact" style="padding-top:80px">
+  <div class="container">
+    <div class="sec-header reveal">
+      <p class="sec-label">Contato</p>
+      <h2 class="sec-title">Vamos <span class="accent">conversar</span></h2>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-text reveal">
+        <p>
+          Estudante, dev generalista e eterno curioso. Se quiser colaborar num projeto, tirar uma dúvida ou só bater um papo sobre tech e games — me chama.
+        </p>
+        <p>
+          E-mail: <a href="mailto:thalissonrodriguesrocha08@gmail.com">thalissonrodriguesrocha08@gmail.com</a><br>
+          Uberlândia, MG — Brasil
+        </p>
+        <div style="margin-top:24px">
+          <a class="btn btn-primary" href="Referencias/curriculo_thalisson.html" target="_blank" style="display:inline-flex">
+            📄 Ver Currículo
+          </a>
+        </div>
+      </div>
+
+      <div class="socials-list reveal" style="transition-delay:.1s">
+        <a class="social-link" href="https://github.com/gubernavit" target="_blank">
+          <span class="s-icon">🐙</span>
+          <span>
+            <span class="s-name">GitHub</span>
+            <span class="s-handle">@gubernavit</span>
+          </span>
+          <span class="s-arrow">→</span>
+        </a>
+        <a class="social-link" href="https://www.instagram.com/thalisson_rr" target="_blank">
+          <span class="s-icon">📸</span>
+          <span>
+            <span class="s-name">Instagram</span>
+            <span class="s-handle">@thalisson_rr</span>
+          </span>
+          <span class="s-arrow">→</span>
+        </a>
+        <a class="social-link" href="https://www.tiktok.com/@thalisson_rr" target="_blank">
+          <span class="s-icon">🎵</span>
+          <span>
+            <span class="s-name">TikTok</span>
+            <span class="s-handle">@thalisson_rr</span>
+          </span>
+          <span class="s-arrow">→</span>
+        </a>
+        <a class="social-link" href="https://discord.com/users/1300515255226466545" target="_blank">
+          <span class="s-icon">🎮</span>
+          <span>
+            <span class="s-name">Discord</span>
+            <span class="s-handle">Thalisson_rr</span>
+          </span>
+          <span class="s-arrow">→</span>
+        </a>
+        <a class="social-link" href="https://gubernavit.itch.io" target="_blank">
+          <span class="s-icon">🕹️</span>
+          <span>
+            <span class="s-name">itch.io</span>
+            <span class="s-handle">gubernavit</span>
+          </span>
+          <span class="s-arrow">→</span>
+        </a>
+        <a class="social-link" href="https://linkedin.com/in/thalissonrodriguesrocha" target="_blank">
+          <span class="s-icon">💼</span>
+          <span>
+            <span class="s-name">LinkedIn</span>
+            <span class="s-handle">thalissonrodriguesrocha</span>
+          </span>
+          <span class="s-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer>
+  <a class="footer-logo" href="#home">
+    <svg viewBox="0 0 136 136" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M69.28 12.55C69.99 12.61 70.71 12.67 71.42 12.71L71.98 12.74 73.1 12.81C74.05 12.87 74.91 12.98 75.83 13.23 76.09 13.29 76.35 13.34 76.61 13.39 83.5 14.77 90.34 17.19 95.94 21.56L96.31 21.84 96.68 22.22C97.44 22.54 97.87 22.28 98.61 21.99L99.14 21.77 100.18 21.36 100.69 21.15C101.38 20.89 102.07 20.69 102.78 20.49L103.29 20.06 103.71 20.09C104.47 20.08 105.18 19.88 105.92 19.7 107.07 19.42 108.18 19.2 109.38 19.17L109.38 18.88C114.33 18.66 114.33 18.66 116.6 18.78L116.91 18.8C117.44 18.83 117.68 18.87 118.13 19.17L118.88 19.42C120.42 19.97 121.57 20.91 122.44 22.29 123.85 25.34 123.2 28.7 122.1 31.73 121.65 32.94 121.11 34.09 120.51 35.22L120.1 36.02C118.88 38.39 117.41 40.63 115.91 42.83L115.67 43.18C115.34 43.65 115.01 44.12 114.66 44.57L114.37 44.95C114.28 45.05 114.21 45.15 114.12 45.25 113.7 46.25 114.36 47.72 114.62 48.71 117.35 59.44 116.23 70.93 111.45 80.92L111.31 81.23C109.39 85.31 106.78 89.03 103.72 92.33L102.84 93.39C102.18 94.11 102.18 94.11 101.66 94.28L101.66 94.58C101.47 94.77 101.47 94.77 101.19 95 101.08 95.1 100.98 95.19 100.86 95.28L100.47 95.62 100.01 96.02C98.999 96.91 97.97 97.73 96.88 98.5 96.45 98.81 96.16 99.04 95.87 99.48L95.57 99.48C95.2 99.71 94.83 99.95 94.47 100.19 91.07 102.41 87.42 104.3 83.55 105.56L83.12 105.7C74.76 108.38 66.25 108.57 57.72 106.6L57.38 106.53C51.98 105.34 46.87 102.59 42.4 99.41L42.05 99.17 41.29 98.47C40.85 98.02 40.46 97.69 39.91 97.4 39.06 97.41 38.35 97.69 37.58 97.99L36.93 98.22 35.95 98.56 32.89 99.42L32.43 99.53C31.79 99.68 31.22 99.79 30.55 99.77L30.41 100.07C30.12 100.12 30.12 100.12 29.75 100.15L28.15 100.33C23.6 101 18.09 101.3 14.16 98.44L13.78 98.14 13.45 97.88C12.47 97.02 11.62 95.54 11.34 94.26L11.26 93.98 10.96 93.84 11.04 93.54C11.11 93.11 11.11 92.71 11.09 92.27 10.98 88.81 12.31 85.56 13.93 82.55L14.19 82.06C16.25 78.3 19 74.89 21.81 71.66L22.54 70.68C22.44 70.26 22.33 69.84 22.21 69.43 20.06 61.57 20.99 52.92 23.55 45.27L23.68 44.89 23.79 44.55C23.89 44.24 23.89 44.24 23.88 43.81L24.17 43.81 24.25 43.57C26.07 37.98 29.4 33.11 33.15 28.65L33.59 28.1 34.12 27.48 34.41 27.48 34.41 27.19 34.71 27.19 34.82 26.93C35.42 25.85 36.6 25.01 37.53 24.22L37.91 23.89C41.24 21.05 47.82 15.61 52.38 15.61L52.52 15.31C52.81 15.21 52.81 15.21 53.2 15.12 53.87 14.95 54.53 14.74 55.19 14.52 59.11 13.27 63.23 12.76 67.34 12.66L68.02 12.56 69.28 12.55Z" fill="#5A4FCF" opacity=".7"/>
+    </svg>
+    Cosmic Studios
+  </a>
+  <span class="footer-copy">© 2025 Thalisson Rodrigues Rocha</span>
+  <span class="footer-mono"><span class="v">v1.0.0</span> · Uberlândia, MG</span>
+</footer>
+
+<!-- ═══════════ SCRIPTS ═══════════ -->
+<script src="config/config.js"></script>
+<script>
+/* ─── CURSOR ─── */
+const dot  = document.getElementById('cur-dot');
+const ring = document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  dot.style.left = mx+'px'; dot.style.top = my+'px';
+});
+document.addEventListener('mousedown', () => ring.classList.add('click'));
+document.addEventListener('mouseup',   () => ring.classList.remove('click'));
+(function animRing(){
+  rx += (mx-rx)*.12; ry += (my-ry)*.12;
+  ring.style.left = rx+'px'; ring.style.top = ry+'px';
+  requestAnimationFrame(animRing);
+})();
+document.querySelectorAll('a,button,.project-card,.skill-tag,.social-link,.stat-card,.status-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>ring.classList.add('hover'));
+  el.addEventListener('mouseleave',()=>ring.classList.remove('hover'));
+});
+
+/* ─── BG CANVAS ─── */
+const cv = document.getElementById('bg-canvas');
+const cx = cv.getContext('2d');
+let W,H,stars=[];
+function resizeCV(){ W=cv.width=innerWidth; H=cv.height=innerHeight; }
+resizeCV(); window.addEventListener('resize',resizeCV);
+for(let i=0;i<120;i++) stars.push({
+  x:Math.random()*9999,y:Math.random()*9999,
+  r:Math.random()*1.2+.2,
+  vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15,
+  a:Math.random()*.4+.05
+});
+(function drawCV(){
+  cx.clearRect(0,0,W,H);
+  stars.forEach(s=>{
+    s.x+=s.vx; s.y+=s.vy;
+    if(s.x<0)s.x=W; if(s.x>W)s.x=0;
+    if(s.y<0)s.y=H; if(s.y>H)s.y=0;
+    cx.beginPath(); cx.arc(s.x%W,s.y%H,s.r,0,Math.PI*2);
+    cx.fillStyle=`rgba(160,154,255,${s.a})`; cx.fill();
+  });
+  for(let i=0;i<stars.length;i++) for(let j=i+1;j<stars.length;j++){
+    const a=stars[i],b=stars[j];
+    const dx=a.x%W-b.x%W,dy=a.y%H-b.y%H,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<90){
+      cx.beginPath(); cx.moveTo(a.x%W,a.y%H); cx.lineTo(b.x%W,b.y%H);
+      cx.strokeStyle=`rgba(90,79,207,${.06*(1-d/90)})`; cx.lineWidth=.5; cx.stroke();
+    }
+  }
+  requestAnimationFrame(drawCV);
+})();
+
+/* ─── NAV SCROLL ─── */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', ()=>{
+  nav.classList.toggle('scrolled', scrollY > 40);
+}, {passive:true});
+
+/* ─── MOBILE MENU ─── */
+const toggle = document.getElementById('nav-toggle');
+const links  = document.getElementById('nav-links');
+toggle.addEventListener('click',()=>{
+  links.classList.toggle('open');
+});
+links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>links.classList.remove('open')));
+
+/* ─── REVEAL ON SCROLL ─── */
+const revObs = new IntersectionObserver((entries,i)=>{
+  entries.forEach((e,idx)=>{
+    if(e.isIntersecting){ setTimeout(()=>e.target.classList.add('in'), idx*80); revObs.unobserve(e.target); }
+  });
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>revObs.observe(el));
+
+/* ─── DISCORD STATUS (Lanyard API) ─── */
+async function fetchDiscord(){
+  try {
+    const cfg = (typeof COSMIC_CONFIG !== 'undefined') ? COSMIC_CONFIG : {};
+    const uid = cfg.discord?.userId || '1300515255226466545';
+    const r = await fetch(`https://api.lanyard.rest/v1/users/${uid}`);
+    const d = await r.json();
+    if(!d.success) throw new Error('fail');
+    const {discord_status, activities, discord_user} = d.data;
+
+    const dot = document.getElementById('discord-dot');
+    const stat = document.getElementById('discord-status');
+    const act  = document.getElementById('discord-activity');
+
+    dot.className = 'status-dot ' + (discord_status === 'online' ? '' : discord_status === 'idle' ? 'idle' : discord_status === 'dnd' ? 'dnd' : 'off');
+
+    const statusMap = {online:'Online',idle:'Ausente',dnd:'Não perturbe',offline:'Offline'};
+    stat.textContent = statusMap[discord_status] || 'Desconhecido';
+
+    const main = activities?.find(a=>a.type===0);
+    if(main) act.textContent = '▶ ' + main.name + (main.details ? ' — '+main.details : '');
+    else act.textContent = 'Sem atividade no momento';
+  } catch(e){
+    document.getElementById('discord-status').textContent = 'Offline / API indisponível';
+    document.getElementById('discord-activity').textContent = '';
+    document.getElementById('discord-dot').className = 'status-dot off';
+  }
+}
+
+/* ─── LAST.FM ─── */
+async function fetchMusic(){
+  try {
+    const cfg = (typeof COSMIC_CONFIG !== 'undefined') ? COSMIC_CONFIG : {};
+    const key  = cfg.lastfm?.apiKey;
+    const user = cfg.lastfm?.username || 'Gubernavit';
+
+    // Sem API key — usa o lastfm-recently-played como fallback visual
+    if(!key || key === 'SUA_API_KEY_LASTFM_AQUI'){
+      document.getElementById('music-track').textContent  = 'Configure a API Key';
+      document.getElementById('music-artist').textContent = '→ config/config.js → lastfm.apiKey';
+      return;
+    }
+
+    const url = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${user}&api_key=${key}&format=json&limit=1`;
+    const r = await fetch(url);
+    const d = await r.json();
+    const track = d.recenttracks?.track?.[0];
+    if(!track) throw new Error('no track');
+
+    const nowPlaying = track['@attr']?.nowplaying === 'true';
+    document.getElementById('music-track').textContent  = track.name;
+    document.getElementById('music-artist').textContent = track.artist['#text'] + ' · ' + track.album['#text'];
+
+    const bar = document.getElementById('music-bar');
+    if(nowPlaying) bar.style.display = 'flex';
+    else bar.style.display = 'none';
+  } catch(e){
+    document.getElementById('music-track').textContent  = 'Sem dados no momento';
+    document.getElementById('music-artist').textContent = 'Verifique a config/config.js';
+  }
+}
+
+fetchDiscord();
+fetchMusic();
+setInterval(fetchDiscord, 30000);
+setInterval(fetchMusic,   60000);
+</script>
+
+</body>
+</html>

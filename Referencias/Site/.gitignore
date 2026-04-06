@@ -1,0 +1,11 @@
+# ⚠️ Nunca suba configurações com API Keys!
+config/config.js
+
+# Node (se usar no futuro)
+node_modules/
+.env
+.env.local
+
+# Sistema
+.DS_Store
+Thumbs.db
